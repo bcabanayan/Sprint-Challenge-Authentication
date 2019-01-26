@@ -1,8 +1,6 @@
 const axios = require('axios');
 
-const jwtKey = process.env.JWT_SECRET;
-
-const { authenticate } = require('../auth/authenticate');
+const { authenticate, jwtKey } = require('../auth/authenticate');
 
 // require knex file in order to get access to database
 const db = require('../database/dbConfig.js');

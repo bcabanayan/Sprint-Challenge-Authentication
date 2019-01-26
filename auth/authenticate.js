@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const jwtKey = process.env.JWT_SECRET;
-  // || 'add a .env file to root of project with the JWT_SECRET variable'; ADDED ENV FILE.
+// added env file (gitignored)
 
 // quickly see what this file exports
 module.exports = {
