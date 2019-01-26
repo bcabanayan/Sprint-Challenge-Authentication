@@ -2,6 +2,15 @@ const axios = require('axios');
 
 const { authenticate } = require('../auth/authenticate');
 
+// require knex file in order to get access to database
+const db = require('../database/dbConfig.js');
+
+// require bcrypt, jwt dependencies
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+// generate a token
+
 module.exports = server => {
   server.post('/api/register', register);
   server.post('/api/login', login);
@@ -10,6 +19,39 @@ module.exports = server => {
 
 function register(req, res) {
   // implement user registration
+  const creds = req.body;
+  const hash = bcrypt.hashSync(creds.password, 14);
+  creds.password = hash;
+  if (req.body.username && req.body.password) {
+    db('users')
+      .insert(creds)
+      .then(ids => {
+        const id = ids[0]
+        db('users')
+          .where('id', id)
+          .then(user => {
+            const token = generateToken(user);
+            res
+              .status(201)
+              .json({message: 'User registered successfully.', token});
+          })
+          .catch(err => {
+            res
+              .status(500)
+              .json({message: 'The user could not be registered at this time.'})
+          })
+      })
+      .catch(err => {
+        res
+          .status(500)
+          .json({message: 'The user could not be registered at this time.'})
+      });
+  }
+  else {
+    res
+      .status(400)
+      .json({message: 'Please provide a username and password to register.'})
+  }
 }
 
 function login(req, res) {
