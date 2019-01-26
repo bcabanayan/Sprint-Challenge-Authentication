@@ -1,4 +1,5 @@
 require('dotenv').config(); // load .env variables
+const authenticate = require('./auth/authenticate')
 
 const { server } = require('./api/server.js');
 
