@@ -1,5 +1,7 @@
 const axios = require('axios');
 
+const jwtKey = process.env.JWT_SECRET;
+
 const { authenticate } = require('../auth/authenticate');
 
 // require knex file in order to get access to database
@@ -16,9 +18,8 @@ function generateToken(user) {
   };
   const options = {
     expiresIn: '1h',
-    jwtid: 'jwtid'
   };
-  return jwt.sign(payload, 'secret', options);
+  return jwt.sign(payload, jwtKey, options);
 }
 
 module.exports = server => {
