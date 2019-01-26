@@ -10,6 +10,16 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 // generate a token
+function generateToken(user) {
+  const payload = {
+    username: user.username
+  };
+  const options = {
+    expiresIn: '1h',
+    jwtid: 'jwtid'
+  };
+  return jwt.sign(payload, 'secret', options);
+}
 
 module.exports = server => {
   server.post('/api/register', register);
@@ -33,29 +43,57 @@ function register(req, res) {
             const token = generateToken(user);
             res
               .status(201)
-              .json({message: 'User registered successfully.', token});
+              .send(token);
           })
           .catch(err => {
             res
               .status(500)
-              .json({message: 'The user could not be registered at this time.'})
+              .json({message: 'The user could not be registered at this time.'});
           })
       })
       .catch(err => {
         res
           .status(500)
-          .json({message: 'The user could not be registered at this time.'})
+          .json({message: 'The user could not be registered at this time.'});
       });
   }
   else {
     res
       .status(400)
-      .json({message: 'Please provide a username and password to register.'})
+      .json({message: 'Please provide a username and password to register.'});
   }
 }
 
 function login(req, res) {
   // implement user login
+  const creds = req.body;
+  if (req.body.username && req.body.password) {
+    db('users')
+      .where('username', creds.username)
+      .then(user => {
+        if (user.length && bcrypt.compareSync(creds.password, user[0].password)) {
+          const token = generateToken(user);
+          res
+            .send(token);
+        }
+        else {
+          res
+            .status(401)
+            .json({message: 'You shall not pass!!!'});
+        }
+      })
+      .catch(err => {
+        res
+          .status(500)
+          .json({message: 'The user could not be logged in at this time.'});
+      })
+  }
+  else {
+    res
+      .status(400)
+      .json({message: 'Please provide a username and a password to log in.'});
+  }
+
 }
 
 function getJokes(req, res) {
